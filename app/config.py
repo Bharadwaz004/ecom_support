@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     per_ip_hourly_cap: int = 10
     max_tool_rounds: int = 4
     request_timeout_s: float = 60.0
+    # Prior turns replayed to the model. The client sends the history, so the server holds
+    # no session state; this bounds how much of it is trusted per request.
+    max_history_turns: int = 6
 
     @property
     def db_file(self) -> Path:

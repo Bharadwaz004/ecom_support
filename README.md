@@ -56,7 +56,12 @@ the tools directly, the trace pane would be theatre.
 
 ### Request path
 
-1. `POST /chat` → the agent opens (or reuses) one long-lived MCP `ClientSession`.
+0. `POST /chat` takes `{"message": str, "history": [{"role", "content"}]}`. **The client
+   holds the conversation, not the server** — there is no session store to evict and
+   nothing is lost when the container restarts. `role` is restricted to `user` and
+   `assistant` by the schema, so a browser cannot forge a `system` instruction or a `tool`
+   result, and the history is trimmed to `MAX_HISTORY_TURNS` before it reaches the model.
+1. The agent opens (or reuses) one long-lived MCP `ClientSession`.
 2. `tools/list` → MCP schemas are converted to OpenAI tool-calling format.
 3. The LLM is called with `tool_choice="auto"`; every tool call it returns is executed
    through the MCP client and appended as a `role: "tool"` message.

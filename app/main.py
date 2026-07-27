@@ -8,7 +8,7 @@ import json
 import logging
 import time
 from collections import defaultdict, deque
-from typing import Any, AsyncIterator
+from typing import Any, AsyncIterator, Literal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -26,8 +26,20 @@ MAX_MESSAGE_CHARS = 500
 HEARTBEAT_SECONDS = 15
 
 
+MAX_HISTORY_MESSAGES = 40  # hard ceiling; settings.max_history_turns trims further
+MAX_HISTORY_CHARS = 4_000
+
+
+class Turn(BaseModel):
+    # Only the two roles a browser is allowed to assert. Accepting "system" or "tool" here
+    # would let a client forge instructions or fake a tool result.
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=MAX_HISTORY_CHARS)
+
+
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1)
+    history: list[Turn] = Field(default_factory=list, max_length=MAX_HISTORY_MESSAGES)
 
 
 class ChatResponse(BaseModel):
@@ -147,8 +159,9 @@ async def chat(payload: ChatRequest, request: Request) -> ChatResponse:
     if not allowed:
         raise HTTPException(status_code=429, detail=reason)
 
+    history = [turn.model_dump() for turn in payload.history]
     try:
-        result = await agent.answer(message)
+        result = await agent.answer(message, history)
     except agent.AgentError as exc:
         trace.emit("in", "error", {"of": "chat", "error": str(exc)})
         raise HTTPException(status_code=503, detail=str(exc)) from exc

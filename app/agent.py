@@ -50,9 +50,13 @@ You have no knowledge of DesiCart other than what the tools return. Follow these
 7. If a question has both an order part and a policy part, look up both before answering.
    A question spanning two policy topics needs a search for each - one search is rarely
    enough.
-8. Today's date is {today}. Use it for any date arithmetic, such as whether a delivered
+8. The conversation may run over several turns. Resolve references to earlier turns - "it",
+   "that order", "the same pincode" - from the messages above. But do not carry a fact
+   forward on memory alone: if the new question turns on a detail, call the tool again
+   rather than trusting what was said earlier.
+9. Today's date is {today}. Use it for any date arithmetic, such as whether a delivered
    order is still inside its return window.
-9. Be concise: a few sentences, or short bullets. Lead with the answer."""
+10. Be concise: a few sentences, or short bullets. Lead with the answer."""
 
 
 class AgentError(RuntimeError):
@@ -251,17 +255,38 @@ def _assistant_message(message: Any) -> dict[str, Any]:
     return payload
 
 
-async def answer(question: str) -> dict[str, Any]:
+def _history_messages(history: list[dict[str, str]] | None, max_turns: int) -> list[dict[str, str]]:
+    """Sanitise client-supplied history before it becomes part of the prompt.
+
+    The history arrives from the browser, so only user and assistant turns are accepted -
+    a client must not be able to inject a system instruction or forge a tool result.
+    """
+    if not history:
+        return []
+    clean = [
+        {"role": turn["role"], "content": turn["content"].strip()}
+        for turn in history
+        if turn.get("role") in ("user", "assistant") and (turn.get("content") or "").strip()
+    ]
+    return clean[-(max_turns * 2) :]
+
+
+async def answer(question: str, history: list[dict[str, str]] | None = None) -> dict[str, Any]:
     """Run the agent loop and return the final answer plus how many rounds it took."""
     request_id = uuid.uuid4().hex[:8]
-    max_rounds = get_settings().max_tool_rounds
+    settings = get_settings()
+    max_rounds = settings.max_tool_rounds
     mcp = connection()
     tools = await mcp.tools()
 
+    prior = _history_messages(history, settings.max_history_turns)
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": SYSTEM_PROMPT.format(today=date.today().isoformat())},
+        *prior,
         {"role": "user", "content": question},
     ]
+    if prior:
+        trace.emit("out", "llm", {"of": "history", "prior_turns": len(prior)}, request_id=request_id)
 
     rounds = 0
     for round_number in range(1, max_rounds + 1):
@@ -270,7 +295,7 @@ async def answer(question: str) -> dict[str, Any]:
         trace.emit(
             "out",
             "llm",
-            {"round": round_number, "model": get_settings().llm_model, "messages": len(messages),
+            {"round": round_number, "model": settings.llm_model, "messages": len(messages),
              "tools": len(tools)},
             request_id=request_id,
         )
