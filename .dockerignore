@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.env
+scripts/
+tests/
+evals/
+data/docs/
+data/chunks.jsonl
+requirements-dev.txt
+README.md

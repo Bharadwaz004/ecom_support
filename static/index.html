@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DesiCart support copilot</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-sunk: #f7f8fa;
+    --bg-raise: #ffffff;
+    --ink: #14161a;
+    --ink-2: #4a5058;
+    --ink-3: #878e98;
+    --line: #e6e8ec;
+    --line-2: #f0f1f4;
+    --accent: #2f5fd0;
+    --accent-soft: #eef3fd;
+    --out: #2f5fd0;
+    --in: #17795a;
+    --err: #c0342b;
+    --warn: #9a6400;
+    --shadow: 0 1px 2px rgba(16, 20, 28, .05), 0 6px 20px -8px rgba(16, 20, 28, .10);
+    --radius: 12px;
+    --ease: cubic-bezier(.22, .61, .36, 1);
+  }
+  html[data-theme="dark"] {
+    --bg: #101215;
+    --bg-sunk: #16191d;
+    --bg-raise: #1a1e23;
+    --ink: #e9ecf1;
+    --ink-2: #a8b0bb;
+    --ink-3: #737c88;
+    --line: #262b32;
+    --line-2: #1e2228;
+    --accent: #6f9dff;
+    --accent-soft: #1a2438;
+    --out: #6f9dff;
+    --in: #4fc79b;
+    --err: #ff8177;
+    --warn: #e0a33a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -10px rgba(0, 0, 0, .6);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    transition: background .25s var(--ease), color .25s var(--ease);
+  }
+  ::selection { background: var(--accent-soft); }
+
+  /* ---------- shell ---------- */
+  .app { display: flex; flex-direction: column; height: 100%; }
+
+  header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    flex: none;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+  .brand h1 { font-size: 15px; font-weight: 620; margin: 0; letter-spacing: -.01em; white-space: nowrap; }
+  .brand span { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spacer { flex: 1; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--ink-2);
+    padding: 5px 11px; border: 1px solid var(--line);
+    border-radius: 999px; background: var(--bg-raise);
+    white-space: nowrap;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); flex: none; }
+  .dot.ok { background: var(--in); }
+  .dot.bad { background: var(--err); }
+  .dot.live { background: var(--in); animation: pulse 2.2s var(--ease) infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(23, 121, 90, .45); }
+    50% { box-shadow: 0 0 0 5px rgba(23, 121, 90, 0); }
+  }
+
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; padding: 0;
+    border: 1px solid var(--line); border-radius: 9px;
+    background: var(--bg-raise); color: var(--ink-2);
+    cursor: pointer; transition: background .16s var(--ease), color .16s var(--ease), border-color .16s var(--ease);
+  }
+  .icon-btn:hover { background: var(--bg-sunk); color: var(--ink); }
+  .icon-btn svg { width: 15px; height: 15px; }
+
+  /* ---------- split ---------- */
+  main {
+    flex: 1; min-height: 0;
+    display: grid;
+    grid-template-columns: var(--split, 1fr) 7px 1fr;
+  }
+  .pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg); }
+  .pane.trace { background: var(--bg-sunk); }
+
+  .grip { cursor: col-resize; background: var(--line); position: relative; }
+  .grip::after {
+    content: ""; position: absolute; inset: 0 -4px;
+  }
+  .grip:hover, .grip.dragging { background: var(--accent); }
+
+  .pane-head {
+    flex: none;
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--line);
+    min-height: 46px;
+  }
+  .pane-head h2 {
+    font-size: 12px; font-weight: 640; margin: 0;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3);
+  }
+  .scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; }
+  .scroll::-webkit-scrollbar { width: 10px; }
+  .scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; border: 3px solid transparent; background-clip: content-box; }
+  .scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-3); background-clip: content-box; }
+
+  /* ---------- chat ---------- */
+  #chat { padding: 26px 22px 8px; }
+  .thread { max-width: 42em; margin: 0 auto; }
+
+  .msg { margin-bottom: 22px; animation: rise .32s var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .msg .who {
+    font-size: 11px; font-weight: 620; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 6px;
+  }
+  .msg.user { display: flex; justify-content: flex-end; }
+  .msg.user .bubble {
+    background: var(--accent-soft); color: var(--ink);
+    padding: 10px 15px; border-radius: 14px 14px 3px 14px;
+    max-width: 88%; white-space: pre-wrap;
+  }
+  .msg .body > :first-child { margin-top: 0; }
+  .msg .body > :last-child { margin-bottom: 0; }
+  .msg .body p { margin: 0 0 .7em; }
+  .msg .body ul, .msg .body ol { margin: 0 0 .7em; padding-left: 1.25em; }
+  .msg .body li { margin-bottom: .3em; }
+  .msg .body code {
+    font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: var(--bg-sunk); border: 1px solid var(--line-2);
+    padding: 1px 5px; border-radius: 5px;
+  }
+  .cite {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; line-height: 1.3;
+    background: var(--bg-sunk); border: 1px solid var(--line);
+    color: var(--ink-2); padding: 2px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .cite b { font-weight: 600; color: var(--ink); }
+  .msg.error .body { color: var(--err); }
+  .msg .meta { font-size: 12px; color: var(--ink-3); margin-top: 8px; }
+
+  .welcome {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; background: var(--bg-raise); box-shadow: var(--shadow);
+  }
+  .welcome h3 { margin: 0 0 6px; font-size: 15px; font-weight: 620; }
+  .welcome p { margin: 0 0 14px; color: var(--ink-2); font-size: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font: inherit; font-size: 13px; text-align: left;
+    padding: 8px 13px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--bg);
+    color: var(--ink-2); cursor: pointer;
+    transition: transform .16s var(--ease), border-color .16s var(--ease), color .16s var(--ease), background .16s var(--ease);
+  }
+  .chip:hover { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); transform: translateY(-1px); }
+
+  .thinking { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 14px; }
+  .thinking .dots { display: inline-flex; gap: 4px; }
+  .thinking .dots i {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3);
+    animation: bounce 1.25s var(--ease) infinite;
+  }
+  .thinking .dots i:nth-child(2) { animation-delay: .16s; }
+  .thinking .dots i:nth-child(3) { animation-delay: .32s; }
+  @keyframes bounce { 0%, 70%, 100% { opacity: .3; transform: translateY(0); } 35% { opacity: 1; transform: translateY(-4px); } }
+
+  /* ---------- composer ---------- */
+  .composer { flex: none; padding: 14px 22px 18px; border-top: 1px solid var(--line); background: var(--bg); }
+  .composer .inner { max-width: 42em; margin: 0 auto; }
+  .field {
+    display: flex; align-items: flex-end; gap: 8px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--bg-raise); padding: 6px 6px 6px 14px;
+    transition: border-color .16s var(--ease), box-shadow .16s var(--ease);
+  }
+  .field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  textarea {
+    flex: 1; font: inherit; color: var(--ink);
+    border: 0; outline: 0; background: none; resize: none;
+    padding: 8px 0; max-height: 148px; line-height: 1.5;
+  }
+  textarea::placeholder { color: var(--ink-3); }
+  .send {
+    flex: none; width: 34px; height: 34px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 9px; cursor: pointer;
+    background: var(--accent); color: #fff;
+    transition: opacity .16s var(--ease), transform .16s var(--ease);
+  }
+  .send:hover:not(:disabled) { transform: translateY(-1px); }
+  .send:disabled { opacity: .35; cursor: default; }
+  .send svg { width: 16px; height: 16px; }
+  .under { display: flex; justify-content: space-between; gap: 12px; margin: 8px 2px 0; font-size: 12px; color: var(--ink-3); }
+  .under .count.warn { color: var(--warn); }
+
+  /* ---------- trace ---------- */
+  .filters { display: flex; gap: 4px; margin-left: auto; }
+  .filters button {
+    font: inherit; font-size: 12px; padding: 4px 10px;
+    border: 1px solid transparent; border-radius: 999px;
+    background: none; color: var(--ink-3); cursor: pointer;
+    transition: background .16s var(--ease), color .16s var(--ease);
+  }
+  .filters button:hover { color: var(--ink); }
+  .filters button[aria-pressed="true"] { background: var(--bg-raise); border-color: var(--line); color: var(--ink); }
+
+  #trace { padding: 16px 18px 40px; position: relative; }
+  .group {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--bg-raise); margin-bottom: 14px; overflow: hidden;
+    animation: rise .3s var(--ease) both;
+  }
+  .group > header {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 13px; border-bottom: 1px solid var(--line-2);
+    background: none;
+  }
+  .group .tag {
+    font: 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--ink-3); background: var(--bg-sunk);
+    border: 1px solid var(--line-2); border-radius: 5px; padding: 3px 6px;
+  }
+  .group .title { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+  .group .n { margin-left: auto; font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  .rounds { padding: 4px 0 6px; }
+  .round-sep {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 13px 4px; font-size: 11px; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .round-sep::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
+
+  .ev { padding: 3px 13px; }
+  .ev .row {
+    display: flex; align-items: center; gap: 9px;
+    width: 100%; text-align: left; font: inherit;
+    background: none; border: 0; padding: 5px 8px; margin: 0 -8px;
+    border-radius: 7px; cursor: pointer; color: inherit;
+    transition: background .14s var(--ease);
+  }
+  .ev .row:hover { background: var(--bg-sunk); }
+  .ev .arrow {
+    font: 13px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    flex: none; width: 12px;
+  }
+  .ev.out .arrow { color: var(--out); }
+  .ev.in .arrow { color: var(--in); }
+  .ev.error .arrow, .ev.error .kind { color: var(--err); }
+  .kind {
+    font: 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 600; letter-spacing: -.01em; flex: none;
+  }
+  .ev.out .kind { color: var(--out); }
+  .ev.in .kind { color: var(--in); }
+  .ev .what {
+    font-size: 12.5px; color: var(--ink-2);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ev .ms {
+    margin-left: auto; flex: none; font-size: 11.5px; color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .ev .caret { flex: none; color: var(--ink-3); font-size: 10px; transition: transform .18s var(--ease); }
+  .ev.open .caret { transform: rotate(90deg); }
+
+  .ev .payload {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows .24s var(--ease);
+  }
+  .ev.open .payload { grid-template-rows: 1fr; }
+  .ev .payload > div { overflow: hidden; }
+  .ev pre {
+    margin: 4px 0 6px;
+    font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: var(--bg-sunk); border: 1px solid var(--line-2);
+    border-radius: 8px; padding: 10px 12px;
+    overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+  }
+  .tok-key { color: var(--accent); }
+  .tok-str { color: var(--in); }
+  .tok-num { color: var(--warn); }
+  .tok-bool, .tok-null { color: var(--ink-3); }
+
+  .empty { color: var(--ink-3); font-size: 13px; text-align: center; padding: 44px 20px; }
+  .empty svg { width: 22px; height: 22px; opacity: .5; display: block; margin: 0 auto 10px; }
+
+  .jump {
+    position: sticky; bottom: 10px; left: 0; right: 0;
+    display: flex; justify-content: center; pointer-events: none;
+    opacity: 0; transition: opacity .2s var(--ease);
+  }
+  .jump.show { opacity: 1; }
+  .jump button {
+    pointer-events: auto; font: inherit; font-size: 12px;
+    padding: 6px 14px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg-raise);
+    color: var(--ink-2); box-shadow: var(--shadow);
+  }
+
+  /* filters */
+  main[data-filter="llm"] .ev:not([data-kind="llm"]) { display: none; }
+  main[data-filter="tools"] .ev:not([data-kind="tools/call"]):not([data-kind="result"]) { display: none; }
+  main[data-filter="errors"] .ev:not([data-kind="error"]) { display: none; }
+  main[data-filter] .group.hidden { display: none; }
+
+  /* ---------- mobile ---------- */
+  .tabs { display: none; gap: 4px; }
+  .tabs button {
+    font: inherit; font-size: 13px; padding: 6px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg-raise); color: var(--ink-3);
+  }
+  .tabs button:first-child { border-radius: 8px 0 0 8px; }
+  .tabs button:last-child { border-radius: 0 8px 8px 0; border-left: 0; }
+  .tabs button[aria-pressed="true"] { color: var(--ink); background: var(--bg-sunk); }
+
+  @media (max-width: 860px) {
+    main { grid-template-columns: 1fr; }
+    .grip { display: none; }
+    .tabs { display: flex; }
+    .brand span { display: none; }
+    body[data-tab="chat"] .pane.trace { display: none; }
+    body[data-tab="trace"] .pane.chat { display: none; }
+    #chat { padding: 18px 14px 4px; }
+    .composer { padding: 12px 14px 16px; }
+    #trace { padding: 12px 12px 30px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body data-tab="chat">
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <h1>DesiCart support copilot</h1>
+      <span>grounded answers over MCP</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="tabs" role="group" aria-label="Pane">
+      <button id="tab-chat" aria-pressed="true">Chat</button>
+      <button id="tab-trace" aria-pressed="false">Trace</button>
+    </div>
+    <span class="pill" id="health" title="Dependency status"><i class="dot"></i><span>checking</span></span>
+    <button class="icon-btn" id="theme" aria-label="Toggle colour theme" title="Toggle theme"></button>
+  </header>
+
+  <main id="split">
+    <section class="pane chat">
+      <div class="pane-head">
+        <h2>Conversation</h2>
+        <span class="pill" id="chat-state" hidden><i class="dot live"></i><span>thinking</span></span>
+      </div>
+      <div class="scroll" id="chat">
+        <div class="thread" id="thread">
+          <div class="welcome msg">
+            <h3>Ask about a DesiCart order or policy</h3>
+            <p>Every answer is grounded in tool results, and every call the agent makes shows up in the trace beside it. The first request may take a moment while the free-tier model wakes up.</p>
+            <div class="chips">
+              <button class="chip">Has order 4412 shipped and can I return it if damaged?</button>
+              <button class="chip">Do you deliver to 781001, and is COD available?</button>
+              <button class="chip">How long do refunds take on a COD order?</button>
+              <button class="chip">How many orders were cancelled in the last 60 days?</button>
+              <button class="chip">Do you ship to Singapore?</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="composer">
+        <div class="inner">
+          <form id="form">
+            <div class="field">
+              <textarea id="input" rows="1" maxlength="500" placeholder="Ask a question…" autocomplete="off"></textarea>
+              <button class="send" id="send" type="submit" aria-label="Send">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg>
+              </button>
+            </div>
+          </form>
+          <div class="under">
+            <span id="count" class="count">0 / 500</span>
+            <span>Enter to send · Shift+Enter for a new line</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grip" id="grip" role="separator" aria-orientation="vertical"></div>
+
+    <section class="pane trace">
+      <div class="pane-head">
+        <h2>Live MCP trace</h2>
+        <span class="pill" id="trace-state"><i class="dot"></i><span>connecting</span></span>
+        <div class="filters" role="group" aria-label="Filter events">
+          <button data-filter="" aria-pressed="true">All</button>
+          <button data-filter="llm" aria-pressed="false">LLM</button>
+          <button data-filter="tools" aria-pressed="false">Tools</button>
+          <button data-filter="errors" aria-pressed="false">Errors</button>
+        </div>
+        <button class="icon-btn" id="clear" aria-label="Clear trace" title="Clear trace">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8h5.8l.6-8"/></svg>
+        </button>
+      </div>
+      <div class="scroll" id="trace">
+        <div class="empty" id="trace-empty">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 8h3l2-4 2 8 2-4h3"/></svg>
+          Waiting for protocol activity
+        </div>
+        <div class="jump" id="jump"><button type="button">Jump to latest</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const $ = function (id) { return document.getElementById(id); };
+  const thread = $("thread"), chatScroll = $("chat"), tracePane = $("trace");
+  const form = $("form"), input = $("input"), send = $("send"), count = $("count");
+  const traceState = $("trace-state"), chatState = $("chat-state"), health = $("health");
+  const jump = $("jump"), splitEl = $("split");
+
+  /* ---------- helpers ---------- */
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+
+  function setPill(el, text, cls) {
+    el.querySelector("span").textContent = text;
+    el.querySelector(".dot").className = "dot" + (cls ? " " + cls : "");
+  }
+
+  /* Minimal markdown: escape first, then re-introduce only the marks we allow. */
+  function renderMarkdown(source) {
+    const lines = String(source || "").split(/\r?\n/);
+    let html = "", list = null;
+
+    function inline(text) {
+      let out = escapeHtml(text);
+      out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
+      out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      // (doc.md > Section) citations become pills.
+      out = out.replace(/\(([\w.-]+\.md)\s*&gt;\s*([^)]+)\)/g,
+        '<span class="cite"><b>$1</b>$2</span>');
+      return out;
+    }
+    function closeList() { if (list) { html += "</" + list + ">"; list = null; } }
+
+    lines.forEach(function (raw) {
+      const line = raw.trimEnd();
+      const bullet = line.match(/^\s*[-*•]\s+(.*)$/);
+      const numbered = line.match(/^\s*\d+[.)]\s+(.*)$/);
+      if (bullet) {
+        if (list !== "ul") { closeList(); html += "<ul>"; list = "ul"; }
+        html += "<li>" + inline(bullet[1]) + "</li>";
+      } else if (numbered) {
+        if (list !== "ol") { closeList(); html += "<ol>"; list = "ol"; }
+        html += "<li>" + inline(numbered[1]) + "</li>";
+      } else if (!line.trim()) {
+        closeList();
+      } else {
+        closeList();
+        html += "<p>" + inline(line) + "</p>";
+      }
+    });
+    closeList();
+    return html || "<p></p>";
+  }
+
+  function highlightJson(value) {
+    const text = escapeHtml(JSON.stringify(value, null, 2));
+    return text.replace(
+      /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g,
+      function (match, str, colon) {
+        if (str) { return '<span class="' + (colon ? "tok-key" : "tok-str") + '">' + str + "</span>" + (colon || ""); }
+        if (match === "null") { return '<span class="tok-null">null</span>'; }
+        if (match === "true" || match === "false") { return '<span class="tok-bool">' + match + "</span>"; }
+        return '<span class="tok-num">' + match + "</span>";
+      }
+    );
+  }
+
+  /* ---------- trace stream ---------- */
+  let source = null, retry = null, groups = {}, eventCount = 0, pinned = true;
+
+  function nearBottom(el) { return el.scrollHeight - el.scrollTop - el.clientHeight < 80; }
+
+  tracePane.addEventListener("scroll", function () {
+    pinned = nearBottom(tracePane);
+    jump.classList.toggle("show", !pinned && eventCount > 0);
+  });
+  jump.querySelector("button").addEventListener("click", function () {
+    tracePane.scrollTop = tracePane.scrollHeight;
+    pinned = true;
+    jump.classList.remove("show");
+  });
+
+  function connect() {
+    if (retry) { clearTimeout(retry); retry = null; }
+    source = new EventSource("/trace");
+    source.onopen = function () { setPill(traceState, "live", "live"); };
+    source.onmessage = function (message) {
+      let event;
+      try { event = JSON.parse(message.data); } catch (err) { return; }
+      addEvent(event);
+    };
+    source.onerror = function () {
+      setPill(traceState, "reconnecting", "bad");
+      source.close();
+      retry = setTimeout(connect, 3000);
+    };
+  }
+
+  function groupFor(event) {
+    const key = event.req || "session";
+    if (groups[key]) { return groups[key]; }
+
+    const node = document.createElement("div");
+    node.className = "group";
+    node.innerHTML =
+      '<header><span class="tag"></span><span class="title"></span><span class="n">0 events</span></header>' +
+      '<div class="rounds"></div>';
+    node.querySelector(".tag").textContent = key === "session" ? "session" : key;
+    node.querySelector(".title").textContent = key === "session" ? "Connection & discovery" : "Agent turn";
+    tracePane.insertBefore(node, jump);
+
+    groups[key] = { node: node, body: node.querySelector(".rounds"), count: 0, round: null };
+    return groups[key];
+  }
+
+  function describe(event) {
+    const p = event.payload || {};
+    if (event.kind === "tools/call") { return p.tool || ""; }
+    if (event.kind === "llm") {
+      const calls = p.tool_calls;
+      if (calls && calls.length) { return "wants " + calls.join(", "); }
+      if (event.direction === "in") { return p.content ? "answered" : "no tool calls"; }
+      return p.model || "";
+    }
+    if (event.kind === "result") {
+      if (p.of === "tools/list") { return (p.tools || []).length + " tools"; }
+      if (p.of === "truncation") { return p.tool + " truncated"; }
+      if (p.of === "initialize") { return p.server || ""; }
+      return p.tool || "";
+    }
+    if (event.kind === "error") { return p.tool || p.of || "error"; }
+    return "";
+  }
+
+  function addEvent(event) {
+    const empty = $("trace-empty");
+    if (empty) { empty.remove(); }
+    eventCount += 1;
+
+    const group = groupFor(event);
+    const payload = event.payload || {};
+
+    // A new outbound LLM call starts a visible round inside the turn.
+    if (event.kind === "llm" && event.direction === "out" && payload.round !== undefined
+        && payload.round !== group.round) {
+      group.round = payload.round;
+      const sep = document.createElement("div");
+      sep.className = "round-sep";
+      sep.appendChild(document.createTextNode(
+        payload.round === "final" ? "final answer" : "round " + payload.round));
+      group.body.appendChild(sep);
+    }
+
+    const node = document.createElement("div");
+    node.className = "ev " + (event.kind === "error" ? "error" : event.direction);
+    node.dataset.kind = event.kind;
+
+    const json = highlightJson(payload);
+    const big = JSON.stringify(payload).length > 240;
+
+    node.innerHTML =
+      '<button class="row" type="button">' +
+        '<span class="caret">▶</span>' +
+        '<span class="arrow">' + (event.direction === "out" ? "→" : "←") + "</span>" +
+        '<span class="kind"></span><span class="what"></span><span class="ms"></span>' +
+      "</button>" +
+      '<div class="payload"><div><pre>' + json + "</pre></div></div>";
+
+    node.querySelector(".kind").textContent = event.kind;
+    node.querySelector(".what").textContent = describe(event);
+    node.querySelector(".ms").textContent =
+      event.ms !== null && event.ms !== undefined ? Math.round(event.ms) + " ms" : "";
+    if (!big) { node.classList.add("open"); }
+
+    node.querySelector(".row").addEventListener("click", function () {
+      node.classList.toggle("open");
+    });
+
+    group.body.appendChild(node);
+    group.count += 1;
+    group.node.querySelector(".n").textContent =
+      group.count + (group.count === 1 ? " event" : " events");
+
+    if (pinned) { tracePane.scrollTop = tracePane.scrollHeight; }
+  }
+
+  $("clear").addEventListener("click", function () {
+    Object.keys(groups).forEach(function (key) { groups[key].node.remove(); });
+    groups = {}; eventCount = 0; pinned = true;
+    jump.classList.remove("show");
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.id = "trace-empty";
+    empty.textContent = "Cleared. Waiting for protocol activity";
+    tracePane.insertBefore(empty, jump);
+  });
+
+  document.querySelectorAll(".filters button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      document.querySelectorAll(".filters button").forEach(function (other) {
+        other.setAttribute("aria-pressed", String(other === button));
+      });
+      const value = button.dataset.filter;
+      if (value) { splitEl.dataset.filter = value; } else { delete splitEl.dataset.filter; }
+      // Hide groups left with nothing visible, so filtering does not leave empty cards.
+      Object.keys(groups).forEach(function (key) {
+        const g = groups[key];
+        const visible = Array.prototype.filter.call(g.body.querySelectorAll(".ev"), function (ev) {
+          return ev.offsetParent !== null;
+        });
+        g.node.classList.toggle("hidden", value !== "" && visible.length === 0);
+      });
+    });
+  });
+
+  /* ---------- chat ---------- */
+  function addMessage(who, options) {
+    const node = document.createElement("div");
+    node.className = "msg " + (options.cls || "");
+    if (options.cls === "user") {
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = options.text;
+      node.appendChild(bubble);
+    } else {
+      const label = document.createElement("div");
+      label.className = "who";
+      label.textContent = who;
+      node.appendChild(label);
+      const body = document.createElement("div");
+      body.className = "body";
+      if (options.html) { body.innerHTML = options.html; } else { body.textContent = options.text; }
+      node.appendChild(body);
+      if (options.meta) {
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = options.meta;
+        node.appendChild(meta);
+      }
+    }
+    thread.appendChild(node);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+    return node;
+  }
+
+  function updateCount() {
+    const n = input.value.length;
+    count.textContent = n + " / 500";
+    count.classList.toggle("warn", n > 440);
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 148) + "px";
+  }
+  input.addEventListener("input", updateCount);
+  input.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); form.requestSubmit(); }
+  });
+
+  document.querySelectorAll(".chip").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      input.value = chip.textContent;
+      updateCount();
+      form.requestSubmit();
+    });
+  });
+
+  let busy = false;
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const message = input.value.trim();
+    if (!message || busy) { return; }
+
+    busy = true;
+    addMessage("you", { text: message, cls: "user" });
+    input.value = "";
+    updateCount();
+    send.disabled = true;
+    chatState.hidden = false;
+
+    const pending = addMessage("copilot", { cls: "pending" });
+    pending.querySelector(".body").innerHTML =
+      '<span class="thinking"><span class="dots"><i></i><i></i><i></i></span><span class="t">working…</span></span>';
+    const started = Date.now();
+    const ticker = setInterval(function () {
+      const seconds = ((Date.now() - started) / 1000).toFixed(1);
+      const label = pending.querySelector(".t");
+      if (label) { label.textContent = "working… " + seconds + "s"; }
+    }, 100);
+
+    try {
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+      });
+      const data = await response.json().catch(function () { return {}; });
+      pending.remove();
+
+      if (!response.ok) {
+        const detail = data.detail;
+        addMessage("copilot", {
+          cls: "error",
+          text: typeof detail === "string" ? detail : "Request failed with status " + response.status + "."
+        });
+      } else {
+        const seconds = ((Date.now() - started) / 1000).toFixed(1);
+        addMessage("copilot", {
+          html: renderMarkdown(data.answer),
+          meta: data.rounds + (data.rounds === 1 ? " round" : " rounds") + " of tool calls · " + seconds + "s"
+        });
+      }
+    } catch (err) {
+      pending.remove();
+      addMessage("copilot", { cls: "error", text: "Could not reach the server. Check that it is running, then try again." });
+    } finally {
+      clearInterval(ticker);
+      busy = false;
+      send.disabled = false;
+      chatState.hidden = true;
+      input.focus();
+    }
+  });
+
+  /* ---------- health ---------- */
+  async function checkHealth() {
+    try {
+      const response = await fetch("/health");
+      const data = await response.json();
+      const bad = Object.keys(data.dependencies || {}).filter(function (key) {
+        return !data.dependencies[key].ok;
+      });
+      if (bad.length) {
+        setPill(health, bad.join(", ") + " down", "bad");
+      } else {
+        setPill(health, "all systems ok", "ok");
+      }
+      health.title = JSON.stringify(data.dependencies, null, 2);
+    } catch (err) {
+      setPill(health, "unreachable", "bad");
+    }
+  }
+
+  /* ---------- theme ---------- */
+  const SUN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.5M8 13.5V15M15 8h-1.5M2.5 8H1M12.9 3.1l-1 1M4.1 11.9l-1 1M12.9 12.9l-1-1M4.1 4.1l-1-1"/></svg>';
+  const MOON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7Z"/></svg>';
+  const themeButton = $("theme");
+
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    themeButton.innerHTML = theme === "dark" ? SUN : MOON;
+    try { localStorage.setItem("theme", theme); } catch (err) { /* private mode */ }
+  }
+  themeButton.addEventListener("click", function () {
+    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  });
+
+  let saved = null;
+  try { saved = localStorage.getItem("theme"); } catch (err) { /* private mode */ }
+  applyTheme(saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+
+  /* ---------- resizable split ---------- */
+  const grip = $("grip");
+  let dragging = false;
+
+  function setSplit(px) {
+    const min = 320, max = splitEl.clientWidth - 320;
+    if (max <= min) { return; }
+    const value = Math.max(min, Math.min(px, max));
+    splitEl.style.setProperty("--split", value + "px");
+    try { localStorage.setItem("split", String(value)); } catch (err) { /* private mode */ }
+  }
+  grip.addEventListener("pointerdown", function (event) {
+    dragging = true;
+    grip.classList.add("dragging");
+    grip.setPointerCapture(event.pointerId);
+  });
+  grip.addEventListener("pointermove", function (event) {
+    if (dragging) { setSplit(event.clientX - splitEl.getBoundingClientRect().left); }
+  });
+  grip.addEventListener("pointerup", function () { dragging = false; grip.classList.remove("dragging"); });
+  grip.addEventListener("dblclick", function () {
+    splitEl.style.removeProperty("--split");
+    try { localStorage.removeItem("split"); } catch (err) { /* private mode */ }
+  });
+
+  let savedSplit = null;
+  try { savedSplit = localStorage.getItem("split"); } catch (err) { /* private mode */ }
+  if (savedSplit && window.innerWidth > 860) { splitEl.style.setProperty("--split", savedSplit + "px"); }
+
+  /* ---------- mobile tabs ---------- */
+  ["chat", "trace"].forEach(function (name) {
+    $("tab-" + name).addEventListener("click", function () {
+      document.body.dataset.tab = name;
+      $("tab-chat").setAttribute("aria-pressed", String(name === "chat"));
+      $("tab-trace").setAttribute("aria-pressed", String(name === "trace"));
+    });
+  });
+
+  connect();
+  checkHealth();
+  setInterval(checkHealth, 60000);
+  input.focus();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Laptop-only dependencies: scripts/ and evals/.
+# These are DELIBERATELY not in requirements.txt - torch alone would blow the 512MB
+# container budget. Nothing the container imports may appear here.
+sentence-transformers==3.1.1
+torch==2.12.1
+qdrant-client==1.18.0
+python-dotenv==1.0.1
+pytest==8.3.3
+pytest-asyncio==0.24.0
