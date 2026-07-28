@@ -1,0 +1,144 @@
+{
+  "meta": {
+    "timestamp": "2026-07-28 06:51 UTC",
+    "target_url": "http://127.0.0.1:8000",
+    "answer_model": "Qwen/Qwen2.5-72B-Instruct",
+    "judge_model": "Qwen/Qwen2.5-72B-Instruct",
+    "judge_temperature": 0.0,
+    "dataset": "dataset.jsonl",
+    "partial_run": true
+  },
+  "summary": {
+    "cases": 3,
+    "completed": 3,
+    "failed": 0,
+    "retrieval_recall_at_5": 1.0,
+    "retrieval_hit_rate_at_5": 1.0,
+    "correct_tool_rate": 1.0,
+    "avg_rounds": 2.0,
+    "avg_latency_s": 9.11,
+    "groundedness": 1.0,
+    "hallucination_rate": 0.0,
+    "refusal_accuracy": null,
+    "false_refusal_rate": 0.0
+  },
+  "cases": [
+    {
+      "question": "How many days do I have to return a pair of jeans?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "returns-policy.md#return-window#0"
+      ],
+      "notes": "Apparel gets the longer 15-day window, not the standard 7.",
+      "retrieved_chunk_ids": [
+        "returns-policy.md#return-window#0",
+        "festival-sale-terms.md#returns-during-sale-periods#0",
+        "order-cancellations.md#cancelling-after-dispatch#0",
+        "exchanges.md#exchange-window#0",
+        "damaged-or-missing-items.md#reporting-window#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "You have 15 days from the delivery date to return a pair of jeans (returns-policy.md > Return window).",
+      "rounds": 2,
+      "latency_s": 8.5,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "return window for clothing",
+            "top_k": 1
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "My shirt arrived torn. How long do I have to report it?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "damaged-or-missing-items.md#reporting-window#0"
+      ],
+      "notes": "48 hours, which is shorter than the return window. Should not be confused with the 15-day apparel window.",
+      "retrieved_chunk_ids": [
+        "damaged-or-missing-items.md#reporting-window#0",
+        "damaged-or-missing-items.md#resolution-options#0",
+        "damaged-or-missing-items.md#missing-items-in-a-multi-item-order#0",
+        "returns-policy.md#return-window#0",
+        "shipping-zones-and-timelines.md#delays-during-peak-periods#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "You have **48 hours** from the time of delivery to report a damaged item. (damaged-or-missing-items.md > Reporting window) \n\nPlease attach photos of the outer packaging, the item itself showing the damage, and the invoice. (damaged-or-missing-items.md > What we need from you)",
+      "rounds": 2,
+      "latency_s": 7.57,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "report damaged item",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "What is the maximum order value I can pay for with cash on delivery?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "cash-on-delivery.md#cod-order-limits#0"
+      ],
+      "notes": "15,000 rupees.",
+      "retrieved_chunk_ids": [
+        "cash-on-delivery.md#cod-order-limits#0",
+        "cash-on-delivery.md#cod-handling-fee#0",
+        "cash-on-delivery.md#items-not-eligible-for-cod#0",
+        "cash-on-delivery.md#refused-cod-deliveries#0",
+        "cash-on-delivery.md#refunds-on-cod-orders#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "The maximum order value payable by cash on delivery is **15,000 rupees**. Orders above this amount must be prepaid. This limit applies to the order total after discounts, including shipping and handling fees. (cash-on-delivery.md > COD order limits)",
+      "rounds": 2,
+      "latency_s": 11.26,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "maximum order value cash on delivery",
+            "top_k": 1
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    }
+  ]
+}

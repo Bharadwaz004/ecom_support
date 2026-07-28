@@ -1,0 +1,963 @@
+{
+  "meta": {
+    "timestamp": "2026-07-28 06:56 UTC",
+    "target_url": "http://127.0.0.1:8000",
+    "answer_model": "Qwen/Qwen2.5-72B-Instruct",
+    "judge_model": "Qwen/Qwen2.5-72B-Instruct",
+    "judge_temperature": 0.0,
+    "dataset": "dataset.jsonl",
+    "partial_run": false
+  },
+  "summary": {
+    "cases": 34,
+    "completed": 34,
+    "failed": 0,
+    "retrieval_recall_at_5": 0.97,
+    "retrieval_hit_rate_at_5": 0.97,
+    "correct_tool_rate": 1.0,
+    "avg_rounds": 2.0,
+    "avg_latency_s": 25.999,
+    "groundedness": 0.997,
+    "hallucination_rate": 0.02,
+    "refusal_accuracy": 1.0,
+    "false_refusal_rate": 0.0
+  },
+  "cases": [
+    {
+      "question": "How many days do I have to return a pair of jeans?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "returns-policy.md#return-window#0"
+      ],
+      "notes": "Apparel gets the longer 15-day window, not the standard 7.",
+      "retrieved_chunk_ids": [
+        "returns-policy.md#return-window#0",
+        "festival-sale-terms.md#returns-during-sale-periods#0",
+        "order-cancellations.md#cancelling-after-dispatch#0",
+        "exchanges.md#exchange-window#0",
+        "damaged-or-missing-items.md#reporting-window#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "You have 15 days from the delivery date to return a pair of jeans (returns-policy.md > Return window).",
+      "rounds": 2,
+      "latency_s": 9.02,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "return window for clothing",
+            "top_k": 1
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "My shirt arrived torn. How long do I have to report it?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "damaged-or-missing-items.md#reporting-window#0"
+      ],
+      "notes": "48 hours, which is shorter than the return window. Should not be confused with the 15-day apparel window.",
+      "retrieved_chunk_ids": [
+        "damaged-or-missing-items.md#reporting-window#0",
+        "damaged-or-missing-items.md#resolution-options#0",
+        "damaged-or-missing-items.md#missing-items-in-a-multi-item-order#0",
+        "returns-policy.md#return-window#0",
+        "shipping-zones-and-timelines.md#delays-during-peak-periods#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "You have **48 hours** from the time of delivery to report a damaged item. (damaged-or-missing-items.md > Reporting window)",
+      "rounds": 2,
+      "latency_s": 14.34,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "report damaged item",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "What is the maximum order value I can pay for with cash on delivery?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "cash-on-delivery.md#cod-order-limits#0"
+      ],
+      "notes": "15,000 rupees.",
+      "retrieved_chunk_ids": [
+        "cash-on-delivery.md#cod-order-limits#0",
+        "cash-on-delivery.md#cod-handling-fee#0",
+        "cash-on-delivery.md#items-not-eligible-for-cod#0",
+        "cash-on-delivery.md#refused-cod-deliveries#0",
+        "cash-on-delivery.md#refunds-on-cod-orders#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "The maximum order value payable by cash on delivery is **15,000 rupees**. Orders above this amount must be prepaid. (cash-on-delivery.md > COD order limits)",
+      "rounds": 2,
+      "latency_s": 40.35,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "maximum order value cash on delivery",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "When does the COD handling fee apply and how much is it?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "cash-on-delivery.md#cod-handling-fee#0"
+      ],
+      "notes": "29 rupees below 499; waived at or above.",
+      "retrieved_chunk_ids": [
+        "cash-on-delivery.md#cod-handling-fee#0",
+        "seller-onboarding.md#commission-and-fees#0",
+        "cash-on-delivery.md#items-not-eligible-for-cod#0",
+        "cash-on-delivery.md#refunds-on-cod-orders#0",
+        "seller-onboarding.md#seller-performance-standards#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "The COD handling fee of 29 rupees applies to cash on delivery orders below 499 rupees. For orders at or above 499 rupees, the fee is waived. The fee covers cash collection and is not refunded if you later return the item. (cash-on-delivery.md > COD handling fee)",
+      "rounds": 2,
+      "latency_s": 47.54,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "COD handling fee",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "How long does a refund take if I paid by UPI?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "refunds-and-timelines.md#refund-timelines-by-payment-method#0"
+      ],
+      "notes": "3 to 5 business days. Must not be confused with the COD refund timeline.",
+      "retrieved_chunk_ids": [
+        "refunds-and-timelines.md#refund-timelines-by-payment-method#0",
+        "payment-failures.md#upi-and-netbanking-specifics#0",
+        "refunds-and-timelines.md#when-a-refund-is-issued#0",
+        "cash-on-delivery.md#refunds-on-cod-orders#0",
+        "order-cancellations.md#cancellation-refunds#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "Refunds for UPI payments typically take 3 to 5 business days from the moment the refund is initiated (refunds-and-timelines.md > Refund timelines by payment method).",
+      "rounds": 2,
+      "latency_s": 54.88,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "refund timeline UPI",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "Can I cancel an order that has already been dispatched?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "order-cancellations.md#cancelling-after-dispatch#0"
+      ],
+      "notes": "No self-service cancel after in_transit; refuse at door or return.",
+      "retrieved_chunk_ids": [
+        "order-cancellations.md#cancelling-before-dispatch#0",
+        "order-cancellations.md#cancelling-after-dispatch#0",
+        "order-cancellations.md#cancellation-charges#0",
+        "order-cancellations.md#seller-initiated-cancellations#0",
+        "seller-onboarding.md#seller-performance-standards#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "Once an order has been dispatched, you can no longer cancel it from the app. You have two options:\n\n- Refuse the package at the door. It will be returned to us and refunded once it reaches the warehouse.\n- Accept the package and raise a return within the normal return window of 7 days (15 days for apparel and footwear).\n\n(order-cancellations.md > Cancelling after dispatch)",
+      "rounds": 2,
+      "latency_s": 11.14,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "cancel dispatched order",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "Do I have to pay for shipping?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "shipping-zones-and-timelines.md#shipping-charges#0"
+      ],
+      "notes": "Free at or above 499, otherwise 49 per order.",
+      "retrieved_chunk_ids": [
+        "returns-policy.md#return-charges#0",
+        "shipping-zones-and-timelines.md#shipping-charges#0",
+        "cash-on-delivery.md#items-not-eligible-for-cod#0",
+        "order-cancellations.md#cancellation-charges#0",
+        "cash-on-delivery.md#refused-cod-deliveries#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "- Orders of 499 rupees and above ship free anywhere DesiCart delivers.\n- For orders below 499 rupees, a flat shipping charge of 49 rupees applies per order.\n- The shipping charge is shown before you pay and appears as a separate line on the invoice. (shipping-zones-and-timelines.md > Shipping charges)",
+      "rounds": 2,
+      "latency_s": 4.72,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "shipping cost",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": 1.0,
+      "unsupported_claims": [],
+      "fabricated_specifics": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "question": "How long is the warranty on a washing machine?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "warranty-and-repairs.md#warranty-periods#0"
+      ],
+      "notes": "Large appliances get 24 months, not the 12 that electronics get.",
+      "retrieved_chunk_ids": [
+        "warranty-and-repairs.md#what-warranty-covers#0",
+        "warranty-and-repairs.md#warranty-periods#0",
+        "warranty-and-repairs.md#replacement-under-warranty#0",
+        "warranty-and-repairs.md#raising-a-warranty-claim#0",
+        "damaged-or-missing-items.md#resolution-options#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "The warranty period for large appliances, including washing machines, is 24 months from the delivery date (warranty-and-repairs.md > Warranty periods).",
+      "rounds": 2,
+      "latency_s": 5.01,
+      "tools_called": [
+        "search_policies"
+      ],
+      "tool_arguments": [
+        {
+          "tool": "search_policies",
+          "arguments": {
+            "query": "warranty on washing machine",
+            "top_k": 5
+          }
+        }
+      ],
+      "correct_tool": true,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "judge failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage.'}"
+    },
+    {
+      "question": "Is water damage covered under warranty?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "warranty-and-repairs.md#what-warranty-does-not-cover#0"
+      ],
+      "notes": "Explicitly excluded.",
+      "retrieved_chunk_ids": [
+        "warranty-and-repairs.md#what-warranty-does-not-cover#0",
+        "warranty-and-repairs.md#what-warranty-covers#0",
+        "warranty-and-repairs.md#warranty-periods#0",
+        "damaged-or-missing-items.md#resolution-options#0",
+        "warranty-and-repairs.md#raising-a-warranty-claim#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.29,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "How long is a gift card valid for?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "gift-cards.md#validity-and-expiry#0"
+      ],
+      "notes": "12 months from issue; expired balance cannot be reinstated.",
+      "retrieved_chunk_ids": [
+        "gift-cards.md#validity-and-expiry#0",
+        "gift-cards.md#buying-a-gift-card#0",
+        "gift-cards.md#lost-or-unused-gift-cards#0",
+        "gift-cards.md#redeeming-a-gift-card#0",
+        "gift-cards.md#refunds-and-cancellations#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.31,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Can I buy a gift card using cash on delivery?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "gift-cards.md#buying-a-gift-card#0",
+        "cash-on-delivery.md#items-not-eligible-for-cod#0"
+      ],
+      "notes": "No. Stated in two documents that must agree.",
+      "retrieved_chunk_ids": [
+        "gift-cards.md#buying-a-gift-card#0",
+        "cash-on-delivery.md#items-not-eligible-for-cod#0",
+        "cash-on-delivery.md#refused-cod-deliveries#0",
+        "gift-cards.md#redeeming-a-gift-card#0",
+        "gift-cards.md#refunds-and-cancellations#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.31,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Money was debited from my account but no order was created. What happens now?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "payment-failures.md#money-debited-but-no-order#0"
+      ],
+      "notes": "Auto-reversal in 5 to 7 business days, no action needed.",
+      "retrieved_chunk_ids": [
+        "payment-failures.md#money-debited-but-no-order#0",
+        "payment-failures.md#pending-payment-orders#0",
+        "refunds-and-timelines.md#refund-not-received#0",
+        "order-cancellations.md#cancellation-refunds#0",
+        "payment-failures.md#emi-and-card-issues#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.3,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "What documents do I need to start selling on DesiCart?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "seller-onboarding.md#documents-required#0"
+      ],
+      "notes": "GSTIN, PAN, cancelled cheque, address proof.",
+      "retrieved_chunk_ids": [
+        "seller-onboarding.md#who-can-sell-on-desicart#0",
+        "seller-onboarding.md#documents-required#0",
+        "festival-sale-terms.md#sale-events#0",
+        "account-and-privacy.md#reporting-a-security-concern#0",
+        "returns-policy.md#how-to-raise-a-return-request#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.25,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "When do sellers receive their payout after a delivery?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "seller-onboarding.md#settlement-cycle#0"
+      ],
+      "notes": "T+7 after delivery confirmation.",
+      "retrieved_chunk_ids": [
+        "seller-onboarding.md#settlement-cycle#0",
+        "seller-onboarding.md#seller-performance-standards#0",
+        "shipping-zones-and-timelines.md#delivery-attempts#0",
+        "refunds-and-timelines.md#when-a-refund-is-issued#0",
+        "order-cancellations.md#seller-initiated-cancellations#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.3,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "I bought a doorbuster deal in the sale and it is faulty. Can I get a refund?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "festival-sale-terms.md#doorbuster-deals#0"
+      ],
+      "notes": "Exchange-only unless no replacement stock exists. A generic return answer is wrong here.",
+      "retrieved_chunk_ids": [
+        "festival-sale-terms.md#doorbuster-deals#0",
+        "festival-sale-terms.md#returns-during-sale-periods#0",
+        "festival-sale-terms.md#price-drop-protection#0",
+        "order-cancellations.md#cancelling-after-dispatch#0",
+        "payment-failures.md#emi-and-card-issues#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.35,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "If I delete my account, what data do you keep?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "account-and-privacy.md#what-data-we-keep#0",
+        "account-and-privacy.md#deleting-your-account#0"
+      ],
+      "notes": "Invoices kept 96 months for tax; everything else removed within 30 days.",
+      "retrieved_chunk_ids": [
+        "account-and-privacy.md#what-data-we-keep#0",
+        "account-and-privacy.md#deleting-your-account#0",
+        "account-and-privacy.md#reporting-a-security-concern#0",
+        "account-and-privacy.md#updating-your-details#0",
+        "account-and-privacy.md#creating-and-accessing-your-account#0"
+      ],
+      "recall_at_k": 1.0,
+      "hit_at_k": true,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.3,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Can I exchange a kurta for a different size?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "exchanges.md#what-can-be-exchanged#0",
+        "exchanges.md#exchange-window#0"
+      ],
+      "notes": "Yes, within 7 days, if the variant is in stock with the same seller.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.3,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "What happens if I am not at home when the courier arrives?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "shipping-zones-and-timelines.md#delivery-attempts#0"
+      ],
+      "notes": "Three attempts, then returned to seller and refunded.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.3,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Can I return a bag of rice I ordered?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "returns-policy.md#what-cannot-be-returned#0"
+      ],
+      "notes": "Groceries are non-returnable.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.31,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "If I return one item out of three, do I get the shipping charge back?",
+      "answerable": true,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [
+        "refunds-and-timelines.md#partial-refunds#0"
+      ],
+      "notes": "Only when every item is returned. COD handling fee is never refunded.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.33,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "What is the status of order 4412?",
+      "answerable": true,
+      "expected_tool": "order_status",
+      "expected_chunk_ids": [],
+      "notes": "Must use the order tool, not policy search.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.3,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "When was order 4350 delivered and what did it cost?",
+      "answerable": true,
+      "expected_tool": "order_status",
+      "expected_chunk_ids": [],
+      "notes": "Order exists in the generated database.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.38,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Has order 987654 been shipped yet?",
+      "answerable": true,
+      "expected_tool": "order_status",
+      "expected_chunk_ids": [],
+      "notes": "Order does not exist. The answer must say so rather than inventing a status.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.31,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Do you deliver to pincode 560001, and can I pay cash on delivery there?",
+      "answerable": true,
+      "expected_tool": "check_delivery",
+      "expected_chunk_ids": [],
+      "notes": "Bengaluru, metro zone, COD available.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.26,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Do you deliver to 744101?",
+      "answerable": true,
+      "expected_tool": "check_delivery",
+      "expected_chunk_ids": [],
+      "notes": "Port Blair, not serviceable.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.35,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "How many days will delivery take to 781001?",
+      "answerable": true,
+      "expected_tool": "check_delivery",
+      "expected_chunk_ids": [],
+      "notes": "Guwahati, Zone B, 4 to 6 business days, no COD.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.26,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "How many orders were cancelled in the last 60 days?",
+      "answerable": true,
+      "expected_tool": "orders_summary",
+      "expected_chunk_ids": [],
+      "notes": "Aggregate question; order_status would be the wrong tool.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.33,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "How many orders are currently in transit?",
+      "answerable": true,
+      "expected_tool": "orders_summary",
+      "expected_chunk_ids": [],
+      "notes": "Status filter over a recent window.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.26,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Order 4412 arrived damaged. Can I still return it?",
+      "answerable": true,
+      "expected_tool": "order_status",
+      "expected_chunk_ids": [
+        "damaged-or-missing-items.md#reporting-window#0",
+        "returns-policy.md#return-window#0"
+      ],
+      "notes": "Needs both the order lookup and the damaged-items policy. The known mis-citation case.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.29,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Do you ship to Singapore?",
+      "answerable": false,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [],
+      "notes": "International shipping is deliberately undocumented. Must refuse, not infer from the serviceable-states list.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.34,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Is there a DesiCart subscription plan with free delivery?",
+      "answerable": false,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [],
+      "notes": "Subscriptions are deliberately undocumented.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.31,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Can I place a bulk B2B order and get a GST invoice for my company?",
+      "answerable": false,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [],
+      "notes": "B2B is undocumented. The seller GSTIN rules are about sellers, not buyers, and must not be repurposed.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.31,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Do you match prices with other shopping websites?",
+      "answerable": false,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [],
+      "notes": "Price matching is undocumented. Price drop protection is a different thing and is sale-specific.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.37,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    },
+    {
+      "question": "Can I order corporate gifts with our company logo printed on them?",
+      "answerable": false,
+      "expected_tool": "search_policies",
+      "expected_chunk_ids": [],
+      "notes": "Corporate gifting is undocumented.",
+      "retrieved_chunk_ids": [],
+      "recall_at_k": null,
+      "hit_at_k": null,
+      "answer": "",
+      "rounds": 0,
+      "latency_s": 0.3,
+      "tools_called": [],
+      "tool_arguments": [],
+      "correct_tool": null,
+      "grounded_score": null,
+      "unsupported_claims": [],
+      "fabricated_specifics": null,
+      "refused": null,
+      "error": "chat returned 503: {\"detail\":\"The language model call failed: APIStatusError: Error code: 402 - {'error': 'You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers"
+    }
+  ]
+}

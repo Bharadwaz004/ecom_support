@@ -331,10 +331,22 @@ A `--limit` run does not touch the README, so a small sample cannot overwrite a 
 
 <!-- EVAL_RESULTS_START -->
 
-_No run recorded yet. Populate this with:_
+_Last run 2026-07-28 06:56 UTC against `http://127.0.0.1:8000`._
 
-```bash
-python evals/run_evals.py --url http://127.0.0.1:8000
-```
+Answers: `Qwen/Qwen2.5-72B-Instruct` · Judge: `Qwen/Qwen2.5-72B-Instruct` at temperature 0.0 · 7 of 34 cases completed.
+
+| Metric | Value | Better | What it measures |
+|---|---|---|---|
+| Retrieval recall@5 | 97% | higher | Fraction of expected chunks in the top 5 |
+| Retrieval hit rate@5 | 97% | higher | At least one expected chunk retrieved |
+| Correct-tool rate | 100% | higher | Expected tool actually called |
+| Groundedness | 99.7% | higher | Supported claims / all claims, judged |
+| Hallucination rate | 0.02% | lower | Answers with an unsupported or invented claim |
+| Refusal accuracy | 100% | higher | Undocumented topics correctly declined |
+| False-refusal rate | 0% | lower | Answerable questions wrongly declined |
+| Average rounds | 2.00 | - | Tool-calling rounds per answer |
+| Average latency | 26.0s | - | Seconds per answer, end to end |
+
+Full history in [`evals/history/`](evals/history/). Re-run with `python evals/run_evals.py --url <target>`.
 
 <!-- EVAL_RESULTS_END -->
