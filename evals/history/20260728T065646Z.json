@@ -17,8 +17,8 @@
     "correct_tool_rate": 1.0,
     "avg_rounds": 2.0,
     "avg_latency_s": 25.999,
-    "groundedness": 0.997,
-    "hallucination_rate": 0.02,
+    "groundedness": 0.971,
+    "hallucination_rate": 0.029,
     "refusal_accuracy": 1.0,
     "false_refusal_rate": 0.0
   },
