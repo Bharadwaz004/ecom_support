@@ -340,8 +340,8 @@ Answers: `Qwen/Qwen2.5-72B-Instruct` · Judge: `Qwen/Qwen2.5-72B-Instruct` at te
 | Retrieval recall@5 | 97% | higher | Fraction of expected chunks in the top 5 |
 | Retrieval hit rate@5 | 97% | higher | At least one expected chunk retrieved |
 | Correct-tool rate | 100% | higher | Expected tool actually called |
-| Groundedness | 99.7% | higher | Supported claims / all claims, judged |
-| Hallucination rate | 0.02% | lower | Answers with an unsupported or invented claim |
+| Groundedness | 97.1% | higher | Supported claims / all claims, judged |
+| Hallucination rate | 2.9% | lower | Answers with an unsupported or invented claim |
 | Refusal accuracy | 100% | higher | Undocumented topics correctly declined |
 | False-refusal rate | 0% | lower | Answerable questions wrongly declined |
 | Average rounds | 2.00 | - | Tool-calling rounds per answer |
