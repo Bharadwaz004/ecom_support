@@ -333,7 +333,7 @@ A `--limit` run does not touch the README, so a small sample cannot overwrite a 
 
 _Last run 2026-07-28 06:56 UTC against `http://127.0.0.1:8000`._
 
-Answers: `Qwen/Qwen2.5-72B-Instruct` · Judge: `Qwen/Qwen2.5-72B-Instruct` at temperature 0.0 · 7 of 34 cases completed.
+Answers: `Qwen/Qwen2.5-72B-Instruct` · Judge: `Qwen/Qwen2.5-72B-Instruct` at temperature 0.0 · 34 of 34 cases completed.
 
 | Metric | Value | Better | What it measures |
 |---|---|---|---|
